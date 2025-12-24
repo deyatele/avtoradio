@@ -68,12 +68,8 @@ export const run = async (audioPath) => {
   try {
     const data = fs.readFileSync(audioPath);
     const response = await identify(data, defaultOptions);
-    console.log('response', response.data.metadata);
     if (response?.data?.metadata?.music) {
-      const meta = response.data.metadata.music[0];
-      console.log(response.data.metadata.music);
-      console.log(`Артист: ${meta.artists.reduce((acc, art) => (acc += art.name + ', '), '')}`);
-      console.log(`Название песни: ${meta.title}`);
+      const meta = response.data.metadata.music[0];   
       const newSong = `Артист: ${meta.artists.reduce(
         (acc, art) => (acc += art.name + ', '),
         '',

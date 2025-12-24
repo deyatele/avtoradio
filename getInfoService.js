@@ -9,8 +9,6 @@ import { TEMP_DIR } from './utils.js';
 
 dotenv.config();
 
-const node_env = process.env.NODE_ENV;
-console.log(node_env);
 if (process.env.NODE_ENV !== 'production') {
     ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
 }
@@ -33,19 +31,20 @@ const httpClient = axios.create({
 
 /**
  * Скачивает поток до достижения нужной длительности
- * @param {number} targetDuration - желаемая длина видео в секундах (например, 20)
+ * @param {number} targetDuration - желаемая длина в секундах
+ * @param {string} segmentPath - путь, куда сохранить файл
  */
-export async function downloadHLSSegment(targetDuration = 20) {
+export async function downloadHLSSegment(targetDuration = 20, segmentPath) {
   try {
-    const segmentPath = path.join(TEMP_DIR, 'segment.ts');
+    // ВАЖНО: Мы больше не создаем путь внутри, а используем переданный
+    if (!segmentPath) throw new Error('segmentPath is required');
 
-    // Очищаем старый файл перед началом записи
+    // Очищаем файл, если он вдруг существует (хотя getTempPath создаст уникальное имя)
     if (fs.existsSync(segmentPath)) fs.unlinkSync(segmentPath);
 
     let currentTotalDuration = 0;
     let lastDownloadedUri = '';
 
-    console.log(`⏳ Начинаю сбор потока (${targetDuration} сек.)...`);
 
     while (currentTotalDuration < targetDuration) {
       const masterResponse = await httpClient.get(STREAM_URL);
@@ -66,24 +65,20 @@ export async function downloadHLSSegment(targetDuration = 20) {
 
       const lastSegment = segments[segments.length - 1];
 
-      // Если это новый сегмент, которого мы еще не качали
       if (lastSegment.uri !== lastDownloadedUri) {
-        const baseUrl =
-          new URL(subPlaylistUrl).origin + new URL(subPlaylistUrl).pathname.replace(/\/[^\/]+$/, '/');
+        const baseUrl = new URL(subPlaylistUrl).origin + new URL(subPlaylistUrl).pathname.replace(/\/[^\/]+$/, '/');
         const lastSegmentUrl = new URL(lastSegment.uri, baseUrl).href;
 
         const segmentResponse = await httpClient.get(lastSegmentUrl, { responseType: 'arraybuffer' });
 
-        // ДОПИСЫВАЕМ в файл (append)
+        // Используем синхронную запись для надежности в цикле
         fs.appendFileSync(segmentPath, Buffer.from(segmentResponse.data));
 
         lastDownloadedUri = lastSegment.uri;
         currentTotalDuration += lastSegment.duration;
 
-        console.log(`✅ Загружено: ${currentTotalDuration.toFixed(1)} / ${targetDuration} сек.`);
       }
 
-      // Ждем 3 секунды, чтобы плейлист успел обновиться на сервере
       if (currentTotalDuration < targetDuration) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
@@ -96,25 +91,30 @@ export async function downloadHLSSegment(targetDuration = 20) {
   }
 }
 
-export function extractAudio(inputPath) {
+/**
+ * Извлекает аудио из TS сегмента
+ * @param {string} inputPath - путь к исходному TS файлу
+ * @param {string} outputPath - путь, куда сохранить MP3
+ */
+export function extractAudio(inputPath, outputPath) {
   return new Promise((resolve, reject) => {
     if (!inputPath || !fs.existsSync(inputPath)) {
-      reject(new Error('File not found or path empty'));
-      return;
+      return reject(new Error('Input file not found'));
     }
 
-    const outputPath = path.join(TEMP_DIR, 'audio.mp3');
-
     ffmpeg(inputPath)
-      .outputOptions('-vn')
+      .outputOptions('-vn') // Убираем видео
       .audioCodec('libmp3lame')
       .toFormat('mp3')
-      .save(outputPath)
-      .on('end', () => resolve(outputPath))
+      .on('start', (commandLine) => {
+      })
+      .on('end', () => {
+        resolve(outputPath);
+      })
       .on('error', (err) => {
-        console.error('❌ Conversion error:', err.message);
         reject(err);
-      });
+      })
+      .save(outputPath); // Сохраняем по переданному пути
   });
 }
 

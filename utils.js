@@ -1,19 +1,25 @@
 import path from 'path';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
+import os from 'os';
+import crypto from 'crypto';
 
-export const TEMP_DIR = './temp';
-export async function cleanup() {
-  if (!fs.existsSync(TEMP_DIR)) {
-    fs.mkdirSync(TEMP_DIR, { recursive: true });
-  }
+// На Windows это будет путь в AppData\Local\Temp
+export const TEMP_DIR = os.tmpdir();
 
-  try {
-    const files = fs.readdirSync(TEMP_DIR);
-    files.forEach((file) => {
-      const filePath = path.join(TEMP_DIR, file);
-      fs.unlinkSync(filePath);
-    });
-  } catch (err) {
-    console.error('❌ Error while cleaning:', err.message);
+export function getTempPath(prefix, ext) {
+  const uniqueId = crypto.randomBytes(4).toString('hex');
+  return path.join(TEMP_DIR, `${prefix}_${uniqueId}.${ext}`);
+}
+
+export async function cleanup(files = []) {
+  for (const filePath of files) {
+    try {
+      if (filePath && fs.existsSync(filePath)) {
+        await fsPromises.unlink(filePath);
+      }
+    } catch (err) {
+      // Ошибка может быть, если файл занят другим процессом (например, ffmpeg еще не закрылся)
+    }
   }
 }

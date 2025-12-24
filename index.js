@@ -1,25 +1,32 @@
-
+// index.js
 import { run } from './geInfoACRCloud.js';
 import { downloadHLSSegment, extractAudio } from './getInfoService.js';
-import { cleanup } from './utils.js';
+import { cleanup, getTempPath } from './utils.js'; // ПРОВЕРЬТЕ ЭТУ СТРОКУ
 
 async function main() {
+  // Генерируем уникальные пути для ТЕКУЩЕГО запуска
+  const currentSegmentPath = getTempPath('segment', 'ts');
+  const currentAudioPath = getTempPath('audio', 'mp3');
+  
+  const filesToCleanup = [];
 
   try {
-    const segmentPath = await downloadHLSSegment(5);
-    if (!segmentPath) {
-      console.log('❌ Failed to load segment. Skipping processing.');
-      return;
-    }
-    const audioPath = await extractAudio(segmentPath);
-    if (!audioPath) {
-      console.log('❌ Failed to extract audio.');
-      return;
-    }
+    // Передаем путь в функцию
+    const segmentPath = await downloadHLSSegment(5, currentSegmentPath);
+    if (!segmentPath) return;
+    filesToCleanup.push(segmentPath);
+
+    // Передаем входной и выходной пути
+    const audioPath = await extractAudio(segmentPath, currentAudioPath);
+    if (!audioPath) return;
+    filesToCleanup.push(audioPath);
+
     await run(audioPath);
-    await cleanup();
   } catch (error) {
     console.error('❗️ CRITICAL ERROR:', error.message);
+  } finally {
+    // Удаляем файлы, даже если произошла ошибка
+    await cleanup(filesToCleanup);
   }
 }
 
