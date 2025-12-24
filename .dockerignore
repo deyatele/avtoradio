@@ -1,0 +1,22 @@
+# Зависимости (должны устанавливаться внутри контейнера)
+node_modules
+npm-debug.log
+
+# Локальные переменные окружения (секреты)
+.env
+.env.local
+
+# Git
+.git
+.gitignore
+
+# Документация и логи
+README.md
+*.log
+docker-compose.yml
+Dockerfile
+
+# Кэш и временные файлы
+.DS_Store
+.vscode
+.idea
