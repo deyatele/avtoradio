@@ -1,12 +1,12 @@
 import fs from 'fs';
 import crypto from 'crypto';
 import axios from 'axios';
+import FormData from 'form-data';
 import { bot } from './telegram.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const chatIdsString = process.env.CHAT_ID;
-const chatIds = chatIdsString.split(', ');
+const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
 
 bot.onText(/\/start/, (msg) => {
   if (!chatIds.includes(msg.chat.id)) {
@@ -23,7 +23,7 @@ const defaultOptions = {
   signature_version: '1',
   data_type: 'audio',
   secure: true,
-  access_key: process.env.ACRCLOUD_ACCES_KEY,
+  access_key: process.env.ACRCLOUD_ACCESS_KEY,
   access_secret: process.env.ACRCLOUD_ACCES_SECRET,
 };
 
@@ -39,10 +39,8 @@ function sign(signString, accessSecret) {
     .toString('base64');
 }
 
-export async function identify(data, options, cb) {
-  const current_data = new Date();
-  const timestamp = current_data.getTime() / 1000;
-
+export async function identify(data, options) {
+  const timestamp = Date.now() / 1000;
   const stringToSign = buildStringToSign(
     'POST',
     options.endpoint,
@@ -51,23 +49,18 @@ export async function identify(data, options, cb) {
     options.signature_version,
     timestamp,
   );
-
   const signature = sign(stringToSign, options.access_secret);
 
-  const blobData = new Blob([data], { type: 'application/octet-stream' });
   const form = new FormData();
-  form.append('sample', blobData, { filename: 'sample.bin', contentType: 'application/octet-stream' });
-  form.append('sample_bytes', data.length);
+  form.append('sample', data, { filename: 'sample.mp3' });
   form.append('access_key', options.access_key);
   form.append('data_type', options.data_type);
   form.append('signature_version', options.signature_version);
   form.append('signature', signature);
   form.append('timestamp', timestamp);
 
-  return await axios.post('http://' + options.host + options.endpoint, form, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  return await axios.post(`https://${options.host}${options.endpoint}`, form, {
+    headers: form.getHeaders(),
   });
 }
 
@@ -75,7 +68,7 @@ export const run = async (audioPath) => {
   try {
     const data = fs.readFileSync(audioPath);
     const response = await identify(data, defaultOptions);
-    console.log(response.data.metadata);
+    console.log('response', response.data.metadata);
     if (response?.data?.metadata?.music) {
       const meta = response.data.metadata.music[0];
       console.log(response.data.metadata.music);

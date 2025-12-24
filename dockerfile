@@ -1,8 +1,6 @@
-FROM node:20-slim
+FROM node:20-alpine
 
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ffmpeg
 
 ENV NODE_ENV=production
 
@@ -17,7 +15,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
 COPY . .
 

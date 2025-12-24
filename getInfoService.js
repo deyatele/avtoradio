@@ -11,8 +11,8 @@ dotenv.config();
 
 const node_env = process.env.NODE_ENV;
 console.log(node_env);
-if (!node_env) {
-  ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
+if (process.env.NODE_ENV !== 'production') {
+    ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
 }
 const STREAM_URL = 'https://hls-01-gpm.hostingradio.ru/avtoradio495/playlist.m3u8';
 const AUDD_API_KEY = process.env.AUDD_API_KEY;
