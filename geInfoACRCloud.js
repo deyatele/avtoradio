@@ -9,10 +9,11 @@ dotenv.config();
 const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
 
 bot.onText(/\/start/, (msg) => {
-  if (!chatIds.includes(msg.chat.id)) {
-    chatIds.push(msg.chat.id);
+  const chatId = msg.chat.id.toString()
+  if (!chatIds.includes(chatId)) {
+    chatIds.push(chatId);
   }
-  bot.sendMessage(msg.chat.id, `Бот запущен id ${msg.chat.id}`);
+  bot.sendMessage(chatId, `Бот запущен id ${chatId}`);
 });
 
 let latestSong = '';
