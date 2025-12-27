@@ -19,4 +19,4 @@ RUN npm ci --only=production && npm cache clean --force
 
 COPY . .
 
-CMD [ "npm", "start" ]
+CMD [ "node", "--env-file=.env", "index.js" ]
