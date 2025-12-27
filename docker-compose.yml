@@ -3,6 +3,10 @@ services:
     build: .
     container_name: my-radio-bot
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
     env_file:
       - .env
     logging:
