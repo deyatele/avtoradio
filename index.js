@@ -1,7 +1,6 @@
-// index.js
 import { run } from './geInfoACRCloud.js';
 import { downloadHLSSegment, extractAudio } from './getInfoService.js';
-import { cleanup, getTempPath } from './utils.js'; // ПРОВЕРЬТЕ ЭТУ СТРОКУ
+import { cleanup, getTempPath } from './utils.js'; 
 
 async function main() {
   // Генерируем уникальные пути для ТЕКУЩЕГО запуска

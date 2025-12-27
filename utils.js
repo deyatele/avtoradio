@@ -4,7 +4,6 @@ import fsPromises from 'fs/promises';
 import os from 'os';
 import crypto from 'crypto';
 
-// На Windows это будет путь в AppData\Local\Temp
 export const TEMP_DIR = os.tmpdir();
 
 export function getTempPath(prefix, ext) {

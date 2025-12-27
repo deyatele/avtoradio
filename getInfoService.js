@@ -1,13 +1,9 @@
 import axios from 'axios';
 import ffmpeg from 'fluent-ffmpeg';
 import { Parser } from 'm3u8-parser';
-import path from 'path';
 import fs from 'fs';
-import dotenv from 'dotenv';
 import https from 'https';
-import { TEMP_DIR } from './utils.js';
 
-dotenv.config();
 
 if (process.env.NODE_ENV !== 'production') {
     ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');

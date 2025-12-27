@@ -3,8 +3,7 @@ import crypto from 'crypto';
 import axios from 'axios';
 import FormData from 'form-data';
 import { bot } from './telegram.js';
-import dotenv from 'dotenv';
-dotenv.config();
+
 
 const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
 
