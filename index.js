@@ -5,9 +5,11 @@ import { cleanup, getTempPath } from './utils.js';
 import cron from 'node-cron';
 
 const chatId = process.env.ADM_CHAT_ID;
-
+let isRunning = false;
 async function main() {
-  bot.sendMessage(chatId, `[${new Date().toLocaleTimeString()}] Starting scheduled scan...`);
+  if (isRunning) return; 
+  isRunning = true;
+  // bot.sendMessage(chatId, `[${new Date().toLocaleTimeString()}] Starting scheduled scan...`);
   // Генерируем уникальные пути для ТЕКУЩЕГО запуска
   const currentSegmentPath = getTempPath('segment', 'ts');
   const currentAudioPath = getTempPath('audio', 'mp3');
@@ -31,15 +33,16 @@ async function main() {
     console.error('❗️ CRITICAL ERROR:', error.message);
   } finally {
     // Удаляем файлы, даже если произошла ошибка
+    isRunning = false;
     await cleanup(filesToCleanup);
   }
 }
 
-cron.schedule('*/40 * 7-21 * * *', () => {
+cron.schedule('*/40 * 4-18 * * *', () => {
   main();
 });
 
 const currentHour = new Date().getHours();
-if (currentHour >= 7 && currentHour <= 22) {
+if (currentHour >= 4 && currentHour <= 18) {
   main();
 }
