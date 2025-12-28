@@ -16,7 +16,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /avtoradio
+            cd /home/admin/avtoradio
             git pull origin main
             docker compose up -d --build
             docker image prune -f
