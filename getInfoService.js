@@ -114,32 +114,3 @@ export function extractAudio(inputPath, outputPath) {
   });
 }
 
-export async function recognizeSong(audioPath) {
-  try {
-    if (!fs.existsSync(audioPath)) {
-      console.log('❌ Audio file not found:', audioPath);
-      return;
-    }
-
-    const FormData = (await import('form-data')).default;
-    const formData = new FormData();
-    formData.append('file', fs.createReadStream(audioPath));
-    formData.append('api_token', AUDD_API_KEY);
-
-    const response = await axios.post('https://api.audd.io/', formData, {
-      headers: formData.getHeaders(),
-    });
-
-    const result = response.data.result;
-    if (result) {
-      console.log('\n🎧 NOW PLAYING:');
-      console.log('Artist: ', result.artist);
-      console.log('Track:  ', result.title);
-      return result;
-    } else {
-      console.log('🤷 Совпадений не найдено');
-    }
-  } catch (error) {
-    console.error('❌ Recognition error:', error.message);
-  }
-}

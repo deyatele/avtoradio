@@ -4,11 +4,10 @@ import axios from 'axios';
 import FormData from 'form-data';
 import { bot } from './telegram.js';
 
-
 const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
 
 bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id.toString()
+  const chatId = msg.chat.id.toString();
   if (!chatIds.includes(chatId)) {
     chatIds.push(chatId);
   }
@@ -69,14 +68,16 @@ export const run = async (audioPath) => {
     const data = fs.readFileSync(audioPath);
     const response = await identify(data, defaultOptions);
     if (response?.data?.metadata?.music) {
-      const meta = response.data.metadata.music[0];   
+      const meta = response.data.metadata.music[0];
       const newSong = `Артист: ${meta.artists.reduce(
         (acc, art) => (acc += art.name + ', '),
         '',
       )}\nНазвание песни: ${meta.title}`;
       if (newSong !== latestSong) {
         chatIds.forEach(async (chatId) => {
-          const message = await bot.sendMessage(chatId, newSong, { parse_mode: 'HTML' });
+          const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${new Date().toLocaleTimeString('ru-RU', {
+        timeZone: 'Europe/Moscow',
+      })}]`, { parse_mode: 'HTML' });
           setTimeout(() => {
             bot.deleteMessage(chatId, message.message_id);
           }, 1200000);
