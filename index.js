@@ -6,10 +6,10 @@ import cron from 'node-cron';
 
 const chatId = process.env.ADM_CHAT_ID;
 let isRunning = false;
+console.log(`Бот запущен ${new Date()}`);
 async function main() {
-  if (isRunning) return; 
+  if (isRunning) return;
   isRunning = true;
-  // bot.sendMessage(chatId, `[${new Date().toLocaleTimeString()}] Starting scheduled scan...`);
   // Генерируем уникальные пути для ТЕКУЩЕГО запуска
   const currentSegmentPath = getTempPath('segment', 'ts');
   const currentAudioPath = getTempPath('audio', 'mp3');
