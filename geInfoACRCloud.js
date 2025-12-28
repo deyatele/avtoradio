@@ -11,7 +11,11 @@ bot.onText(/\/start/, (msg) => {
   if (!chatIds.includes(chatId)) {
     chatIds.push(chatId);
   }
-  bot.sendMessage(chatId, `Бот запущен id ${chatId}`);
+  bot.sendMessage(chatId, `Бот запущен id ${chatId}`, {
+    reply_markup: {
+      remove_keyboard: true,
+    },
+  });
 });
 
 let latestSong = '';
@@ -73,11 +77,15 @@ export const run = async (audioPath) => {
         (acc, art) => (acc += art.name + ', '),
         '',
       )}\nНазвание песни: ${meta.title}`;
-      if (newSong !== latestSong) {
+      if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
         chatIds.forEach(async (chatId) => {
-          const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${new Date().toLocaleTimeString('ru-RU', {
-        timeZone: 'Europe/Moscow',
-      })}]`, { parse_mode: 'HTML' });
+          const message = await bot.sendMessage(
+            chatId,
+            `${newSong}\n[время: ${new Date().toLocaleTimeString('ru-RU', {
+              timeZone: 'Europe/Moscow',
+            })}]`,
+            { parse_mode: 'HTML' },
+          );
           setTimeout(() => {
             bot.deleteMessage(chatId, message.message_id);
           }, 1200000);
