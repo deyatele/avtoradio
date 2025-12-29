@@ -87,7 +87,9 @@ export const run = async (audioPath) => {
             { parse_mode: 'HTML' },
           );
           setTimeout(() => {
-            bot.deleteMessage(chatId, message.message_id);
+            try {
+              bot.deleteMessage(chatId, message.message_id);
+            } catch {}
           }, 1200000);
         });
         latestSong = newSong;
