@@ -7,6 +7,7 @@ import cron from 'node-cron';
 const chatId = process.env.ADM_CHAT_ID;
 let isRunning = false;
 console.log(`Бот запущен ${new Date()}`);
+bot.sendMessage(chatId, `Бот запущен ${new Date()}`);
 async function main() {
   if (isRunning) return;
   isRunning = true;
