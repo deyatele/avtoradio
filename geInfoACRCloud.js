@@ -5,7 +5,8 @@ import FormData from 'form-data';
 import { bot } from './telegram.js';
 
 const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
-
+let checkKey;
+const ADM_CHAT_ID = process.env.ADM_CHAT_ID;
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id.toString();
   if (!chatIds.includes(chatId)) {
@@ -61,22 +62,43 @@ export async function identify(data, options) {
   form.append('signature_version', options.signature_version);
   form.append('signature', signature);
   form.append('timestamp', timestamp);
-
-  return await axios.post(`https://${options.host}${options.endpoint}`, form, {
-    headers: form.getHeaders(),
-  });
+  try {
+    return await axios.post(`https://${options.host}${options.endpoint}`, form, {
+      headers: form.getHeaders(),
+      proxy: false,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
 
 export const run = async (audioPath) => {
   try {
     const data = fs.readFileSync(audioPath);
     const response = await identify(data, defaultOptions);
+
+    if (checkKey > 40) {
+      checkKey = 0;
+      await bot.sendMessage(
+        ADM_CHAT_ID,
+        `Возможно закончился срок ключа, проверить ключ\n[время: ${new Date().toLocaleTimeString('ru-RU', {
+          timeZone: 'Europe/Moscow',
+        })}]`,
+        { parse_mode: 'HTML' },
+      );
+    }
+
+    if (response?.data?.status.code === 0) {
+      checkKey = 0;
+    } else checkKey += 1;
+
     if (response?.data?.metadata?.music) {
       const meta = response.data.metadata.music[0];
-      const newSong = `Артист: ${meta.artists.reduce(
-        (acc, art) => (acc += art.name + ', '),
-        '',
-      )}\nНазвание песни: ${meta.title}`;
+      let artistsStr = '';
+      meta.artists.forEach((artist) => {
+        artistsStr += artist.name + ', ';
+      });
+      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
       if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
         chatIds.forEach(async (chatId) => {
           const message = await bot.sendMessage(
@@ -96,6 +118,6 @@ export const run = async (audioPath) => {
       }
     }
   } catch (error) {
-    console.log('identify', error);
+    console.log(error);
   }
 };
