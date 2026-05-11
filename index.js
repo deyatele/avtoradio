@@ -1,8 +1,9 @@
 import cron from 'node-cron';
-import { downloadHLSSegment, extractAudio } from './getInfoService.js';
+
 import { run } from './geInfoACRCloud.js';
-import { cleanup, getTempPath } from './utils.js';
+import { downloadHLSSegment, extractAudio } from './getInfoService.js';
 import { bot } from './telegram.js';
+import { cleanup, getTempPath } from './utils.js';
 
 const chatId = process.env.ADM_CHAT_ID;
 let isRunning = false;
@@ -26,7 +27,7 @@ async function main() {
     if (!audioPath) return;
     filesToCleanup.push(audioPath);
     await run(audioPath);
-  } catch (error) {
+  } catch  {
     isRunning = false;
     await cleanup(filesToCleanup);
   } finally {
@@ -35,7 +36,7 @@ async function main() {
   }
 }
 
-cron.schedule('*/40 * 4-18 * * *', () => {
+cron.schedule('*/40 * 0-18 * * *', () => {
   main();
 });
 

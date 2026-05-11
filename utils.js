@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs';
-import fsPromises from 'fs/promises';
-import os from 'os';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import fsPromises from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 export const TEMP_DIR = os.tmpdir();
 
@@ -17,8 +17,21 @@ export async function cleanup(files = []) {
       if (filePath && fs.existsSync(filePath)) {
         await fsPromises.unlink(filePath);
       }
-    } catch (err) {
+    } catch {
       // Ошибка может быть, если файл занят другим процессом (например, ffmpeg еще не закрылся)
     }
   }
+}
+
+export function writeBase(song) {
+  if (!fs.existsSync('./base.json')) {
+    fs.writeFileSync('./base.json', JSON.stringify([song]));
+    return;
+  }
+  const raw = fs.readFileSync('./base.json', 'utf-8');
+  const base = raw ? JSON.parse(raw) : [];
+  base.push(song);
+
+  if (base.length > 10) base.shift();
+  fs.writeFileSync('./base.json', JSON.stringify(base));
 }

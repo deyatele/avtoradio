@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import axios from 'axios';
 import FormData from 'form-data';
 import { bot } from './telegram.js';
+import { writeBase } from './utils.js';
 
 const chatIds = process.env.CHAT_ID ? process.env.CHAT_ID.split(',').map((id) => id.trim()) : [];
 let checkKey;
@@ -77,8 +78,8 @@ export const run = async (audioPath) => {
     const data = fs.readFileSync(audioPath);
     const response = await identify(data, defaultOptions);
 
-    if (checkKey > 40) {
-      checkKey = 0;
+    if (checkKey === 40) {
+      //checkKey = 0;
       await bot.sendMessage(
         ADM_CHAT_ID,
         `Возможно закончился срок ключа, проверить ключ\n[время: ${new Date().toLocaleTimeString('ru-RU', {
@@ -86,6 +87,16 @@ export const run = async (audioPath) => {
         })}]`,
         { parse_mode: 'HTML' },
       );
+    }
+    if (checkKey > 70) {
+      await bot.sendMessage(
+        ADM_CHAT_ID,
+        `Сто пудово закончился срок ключа. Меняй ключ\n[время: ${new Date().toLocaleTimeString('ru-RU', {
+          timeZone: 'Europe/Moscow',
+        })}]`,
+        { parse_mode: 'HTML' },
+      );
+      checkKey = 0;
     }
 
     if (response?.data?.status.code === 0) {
@@ -100,20 +111,19 @@ export const run = async (audioPath) => {
       });
       const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
       if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
+        const timeNow = new Date().toLocaleTimeString('ru-RU', {
+          timeZone: 'Europe/Moscow',
+        });
         chatIds.forEach(async (chatId) => {
-          const message = await bot.sendMessage(
-            chatId,
-            `${newSong}\n[время: ${new Date().toLocaleTimeString('ru-RU', {
-              timeZone: 'Europe/Moscow',
-            })}]`,
-            { parse_mode: 'HTML' },
-          );
+          const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, { parse_mode: 'HTML' });
           setTimeout(() => {
             try {
               bot.deleteMessage(chatId, message.message_id);
             } catch {}
           }, 1200000);
         });
+        const songForBase = { artist: artistsStr, title: meta.title, time: timeNow };
+        writeBase(songForBase);
         latestSong = newSong;
       }
     }

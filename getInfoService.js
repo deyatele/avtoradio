@@ -1,15 +1,16 @@
+import fs from 'node:fs';
+import http from 'node:http';
+import https from 'node:https';
+
 import axios from 'axios';
-import https from 'https';
-import http from 'http';
 import ffmpeg from 'fluent-ffmpeg';
 import { Parser } from 'm3u8-parser';
-import fs from 'fs';
 
 if (process.env.NODE_ENV !== 'production') {
   ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
 }
 const STREAM_URL =
-  process.env.RADIO_STREAM_URL || 'https://hls-01-gpm.hostingradio.ru/avtoradio8162/playlist.m3u8';
+  process.env.RADIO_STREAM_URL || 'https://hls-01-gpm.hostingradio.ru/avtoradio495/playlist.m3u8';
 const BITRATE_PATH = process.env.BITRATE_PATH || '128';
 
 const httpsAgent = new https.Agent({
@@ -40,7 +41,7 @@ const httpClient = axios.create({
   // Разрешаем редиректы, включая с http на https
   validateStatus: (status) => status >= 200 && status < 400,
   // Принудительно используем HTTPS при редиректах
-  beforeRedirect: (options, { headers }) => {
+  beforeRedirect: (options) => {
     // Если редирект на HTTP, меняем на HTTPS
     if (options.protocol === 'http:') {
       options.protocol = 'https:';
@@ -107,8 +108,7 @@ export async function downloadHLSSegment(targetDuration = 20, segmentPath) {
       const lastSegment = segments[segments.length - 1];
 
       if (lastSegment.uri !== lastDownloadedUri) {
-        const baseUrl =
-          new URL(subPlaylistUrl).origin + new URL(subPlaylistUrl).pathname.replace(/\/[^\/]+$/, '/');
+        const baseUrl = new URL(subPlaylistUrl).origin + new URL(subPlaylistUrl).pathname.replace(/\/[^/]+$/, '/');
         let lastSegmentUrl;
         try {
           lastSegmentUrl = new URL(lastSegment.uri, baseUrl).href;
