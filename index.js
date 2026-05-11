@@ -36,7 +36,7 @@ async function main() {
   }
 }
 
-cron.schedule('*/40 * 0-18 * * *', () => {
+cron.schedule('*/40 * 4-18 * * *', () => {
   main();
 });
 
