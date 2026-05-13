@@ -43,13 +43,12 @@ export function writeBase(song) {
 async function createSongInBase(song) {
   if (!song?.title || !song?.artist || !song?.time) return;
   try {
-    const res = await axios.post(`${process.env.BASE_URL}/song`, JSON.stringify(song), {
+    await axios.post(`${process.env.BASE_URL}/song`, JSON.stringify(song), {
       headers: {
         'Content-Type': 'application/json',
       },
       proxy: false,
     });
-    console.log(res.data);
   } catch (error) {
     console.log(error);
   }
