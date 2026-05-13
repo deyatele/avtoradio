@@ -25,7 +25,9 @@ export async function cleanup(files = []) {
 }
 
 export function writeBase(song) {
-  if (!fs.existsSync('./base.json')) {
+  createSongInBase(song);
+
+  /* if (!fs.existsSync('./base.json')) {
     fs.writeFileSync('./base.json', JSON.stringify([song]));
     return;
   }
@@ -34,9 +36,8 @@ export function writeBase(song) {
   base.push(song);
 
   if (base.length > 10) base.shift();
-  fs.writeFileSync('./base.json', JSON.stringify(base));
+  fs.writeFileSync('./base.json', JSON.stringify(base)); */
 
-  createSongInBase(song);
 }
 
 async function createSongInBase(song) {

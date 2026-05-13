@@ -27,7 +27,7 @@ async function main() {
     if (!audioPath) return;
     filesToCleanup.push(audioPath);
     await run(audioPath);
-  } catch  {
+  } catch {
     isRunning = false;
     await cleanup(filesToCleanup);
   } finally {
@@ -36,8 +36,7 @@ async function main() {
   }
 }
 
-cron.schedule('*/40 * 0-24 * * *', () => {
-  console.log('main')
+cron.schedule('*/40 * 4-18 * * *', () => {
   main();
 });
 
