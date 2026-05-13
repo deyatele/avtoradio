@@ -36,11 +36,12 @@ async function main() {
   }
 }
 
-cron.schedule('*/40 * 4-18 * * *', () => {
+cron.schedule('*/40 * 0-24 * * *', () => {
+  console.log('main')
   main();
 });
 
 const currentHour = new Date().getHours();
-if (currentHour >= 4 && currentHour <= 18) {
+if (currentHour >= 0 && currentHour <= 24) {
   main();
 }

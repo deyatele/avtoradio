@@ -1,3 +1,4 @@
+import axios from 'axios';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import fsPromises from 'node:fs/promises';
@@ -34,4 +35,21 @@ export function writeBase(song) {
 
   if (base.length > 10) base.shift();
   fs.writeFileSync('./base.json', JSON.stringify(base));
+
+  createSongInBase(song);
+}
+
+async function createSongInBase(song) {
+  if (!song?.title || !song?.artist || !song?.time) return;
+  try {
+    const res = await axios.post(`${process.env.BASE_URL}/song`, JSON.stringify(song), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      proxy: false,
+    });
+    console.log(res.data);
+  } catch (error) {
+    console.log(error);
+  }
 }
