@@ -114,10 +114,11 @@ export const run = async (audioPath) => {
       if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
         const currentHour = new Date().getHours();
         // Если время по Москве с 7 до 21
+
+        const timeNow = new Date().toLocaleTimeString('ru-RU', {
+          timeZone: 'Europe/Moscow',
+        });
         if (currentHour >= 4 && currentHour <= 18) {
-          const timeNow = new Date().toLocaleTimeString('ru-RU', {
-            timeZone: 'Europe/Moscow',
-          });
           chatIds.forEach(async (chatId) => {
             const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, {
               parse_mode: 'HTML',
