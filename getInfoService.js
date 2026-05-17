@@ -9,12 +9,11 @@ import { Parser } from 'm3u8-parser';
 if (process.env.NODE_ENV !== 'production') {
   ffmpeg.setFfmpegPath('C:\\ffmpeg\\bin\\ffmpeg.exe');
 }
-const STREAM_URL =
-  process.env.RADIO_STREAM_URL || 'https://hls-01-gpm.hostingradio.ru/avtoradio495/playlist.m3u8';
+const STREAM_URL = process.env.RADIO_STREAM_URL || 'https://hls-01-gpm.hostingradio.ru/avtoradio495/playlist.m3u8';
 const BITRATE_PATH = process.env.BITRATE_PATH || '128';
 
 const httpsAgent = new https.Agent({
-  rejectUnauthorized: false, // Иногда требуется для стриминговых серверов
+  rejectUnauthorized: false,
 });
 
 // Хранилище для cookie
@@ -139,9 +138,7 @@ export async function downloadHLSSegment(targetDuration = 20, segmentPath) {
     }
 
     return segmentPath;
-  } catch (error) {
-    console.log(error);
-  }
+  } catch {}
 }
 
 /**

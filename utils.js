@@ -37,7 +37,6 @@ export function writeBase(song) {
 
   if (base.length > 10) base.shift();
   fs.writeFileSync('./base.json', JSON.stringify(base)); */
-
 }
 
 async function createSongInBase(song) {
@@ -46,11 +45,9 @@ async function createSongInBase(song) {
     await axios.post(`${process.env.BASE_URL}/song`, JSON.stringify(song), {
       headers: {
         'Content-Type': 'application/json',
-        'x-api-token-bot': process.env.BOT_TOKEN_BASE
+        'x-api-token-bot': process.env.BOT_TOKEN_BASE,
       },
       proxy: false,
     });
-  } catch (error) {
-    console.log(error);
-  }
+  } catch {}
 }

@@ -110,18 +110,25 @@ export const run = async (audioPath) => {
         artistsStr += artist.name + ', ';
       });
       const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
+      // Если новая песня
       if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
-        const timeNow = new Date().toLocaleTimeString('ru-RU', {
-          timeZone: 'Europe/Moscow',
-        });
-        chatIds.forEach(async (chatId) => {
-          const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, { parse_mode: 'HTML' });
-          setTimeout(() => {
-            try {
-              bot.deleteMessage(chatId, message.message_id);
-            } catch {}
-          }, 1200000);
-        });
+        const currentHour = new Date().getHours();
+        // Если время по Москве с 7 до 21
+        if (currentHour >= 4 && currentHour <= 18) {
+          const timeNow = new Date().toLocaleTimeString('ru-RU', {
+            timeZone: 'Europe/Moscow',
+          });
+          chatIds.forEach(async (chatId) => {
+            const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, {
+              parse_mode: 'HTML',
+            });
+            setTimeout(() => {
+              try {
+                bot.deleteMessage(chatId, message.message_id);
+              } catch {}
+            }, 1200000);
+          });
+        }
         const songForBase = { artist: artistsStr, title: meta.title, time: timeNow };
         writeBase(songForBase);
         latestSong = newSong;
