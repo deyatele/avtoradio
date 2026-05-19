@@ -116,11 +116,13 @@ export const run = async (audioPath) => {
       if (newSong === latestSongString) return;
 
       // Если в названии есть совпадения
-      const newSongTitleArr = meta.title.split(' ');
-      const latestSongArr = latestSong.title.split(' ');
-      for (const newSongTitleItem of newSongTitleArr) {
-        if (newSongTitleItem.length < 3) continue;
-        if (latestSongArr.includes(newSongTitleItem)) return;
+      const newSongTitleArr = meta.title?.split(' ');
+      const latestSongArr = latestSong.title?.split(' ');
+      if (newSongTitleArr.length && latestSongArr.length) {
+        for (const newSongTitleItem of newSongTitleArr) {
+          if (newSongTitleItem.length < 3) continue;
+          if (latestSongArr.includes(newSongTitleItem)) return;
+        }
       }
 
       const currentHour = new Date().getHours();
