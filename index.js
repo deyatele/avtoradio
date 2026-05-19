@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 
-import { run } from './geInfoACRCloud.js';
+import { run } from './getInfoACRCloud.js';
 import { downloadHLSSegment, extractAudio } from './getInfoService.js';
 import { bot } from './telegram.js';
 import { cleanup, getTempPath } from './utils.js';
