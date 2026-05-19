@@ -109,31 +109,45 @@ export const run = async (audioPath) => {
       meta.artists.forEach((artist) => {
         artistsStr += artist.name + ', ';
       });
-      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
-      // Если новая песня
-      if (newSong.toLowerCase() !== latestSong.toLowerCase()) {
-        const currentHour = new Date().getHours();
-        // Если время по Москве с 7 до 21
 
-        const timeNow = new Date().toLocaleTimeString('ru-RU', {
-          timeZone: 'Europe/Moscow',
-        });
-        if (currentHour >= 4 && currentHour <= 18) {
-          chatIds.forEach(async (chatId) => {
-            const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, {
-              parse_mode: 'HTML',
-            });
-            setTimeout(() => {
-              try {
-                bot.deleteMessage(chatId, message.message_id);
-              } catch {}
-            }, 1200000);
-          });
-        }
-        const songForBase = { artist: artistsStr, title: meta.title, time: timeNow };
-        writeBase(songForBase);
-        latestSong = newSong;
+      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`.toLowerCase();
+      const latestSongString = `Артист: ${latestSong.artist}\nНазвание песни: ${latestSong.title}`.toLowerCase();
+      // Если та же песня
+      if (newSong === latestSongString) return;
+
+      // Если в названии есть совпадения
+      const newSongTitleArr = meta.title.split(' ');
+      const latestSongArr = latestSong.title.split(' ');
+      for (const newSongTitleItem of newSongTitleArr) {
+        if (newSongTitleItem.length < 3) continue;
+        if (latestSongArr.includes(newSongTitleItem)) return;
       }
+
+      const currentHour = new Date().getHours();
+      // Если время по Москве с 7 до 21
+
+      const timeNow = new Date().toLocaleTimeString('ru-RU', {
+        timeZone: 'Europe/Moscow',
+      });
+
+      if (currentHour >= 4 && currentHour <= 18) {
+        chatIds.forEach(async (chatId) => {
+          const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, {
+            parse_mode: 'HTML',
+          });
+          setTimeout(() => {
+            try {
+              bot.deleteMessage(chatId, message.message_id);
+            } catch {}
+          }, 1200000);
+        });
+      }
+
+      const songNew = { artist: artistsStr, title: meta.title, time: timeNow };
+
+      writeBase(songNew);
+
+      latestSong = songNew;
     }
   } catch (error) {
     console.log(error);
