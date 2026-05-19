@@ -118,7 +118,7 @@ export const run = async (audioPath) => {
       // Если в названии есть совпадения
       const newSongTitleArr = meta.title?.split(' ');
       const latestSongArr = latestSong.title?.split(' ');
-      if (newSongTitleArr.length && latestSongArr.length) {
+      if (newSongTitleArr?.length && latestSongArr?.length) {
         for (const newSongTitleItem of newSongTitleArr) {
           if (newSongTitleItem.length < 3) continue;
           if (latestSongArr.includes(newSongTitleItem)) return;
