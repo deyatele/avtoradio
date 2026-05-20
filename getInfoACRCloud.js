@@ -110,10 +110,10 @@ export const run = async (audioPath) => {
         artistsStr += artist.name + ', ';
       });
 
-      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`.toLowerCase();
-      const latestSongString = `Артист: ${latestSong.artist}\nНазвание песни: ${latestSong.title}`.toLowerCase();
+      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
+      const latestSongString = `Артист: ${latestSong.artist}\nНазвание песни: ${latestSong.title}`;
       // Если та же песня
-      if (newSong === latestSongString) return;
+      if (newSong.toLowerCase() === latestSongString.toLowerCase()) return;
 
       // Если в названии есть совпадения
       const newSongTitleArr = meta.title?.split(' ');
@@ -126,12 +126,12 @@ export const run = async (audioPath) => {
       }
 
       const currentHour = new Date().getHours();
-      // Если время по Москве с 7 до 21
 
       const timeNow = new Date().toLocaleTimeString('ru-RU', {
         timeZone: 'Europe/Moscow',
       });
-
+      
+      // Если время по Москве с 7 до 22
       if (currentHour >= 4 && currentHour <= 18) {
         chatIds.forEach(async (chatId) => {
           const message = await bot.sendMessage(chatId, `${newSong}\n[время: ${timeNow}]`, {
