@@ -63,10 +63,10 @@ export async function identify(data, options) {
   form.append('signature_version', options.signature_version);
   form.append('signature', signature);
   form.append('timestamp', timestamp);
-    return await axios.post(`https://${options.host}${options.endpoint}`, form, {
-      headers: form.getHeaders(),
-      proxy: false,
-    });
+  return await axios.post(`https://${options.host}${options.endpoint}`, form, {
+    headers: form.getHeaders(),
+    proxy: false,
+  });
 }
 
 export const run = async (audioPath) => {
@@ -105,7 +105,7 @@ export const run = async (audioPath) => {
       meta.artists.forEach((artist) => {
         artistsStr += `${artist.name}, `;
       });
-      const title = meta.title.trim()
+      const title = meta.title.trim();
 
       const newSong = `Артист: ${artistsStr}\nНазвание песни: ${title}`;
       const latestSongString = `Артист: ${latestSong.artist}\nНазвание песни: ${latestSong.title}`;
@@ -115,32 +115,33 @@ export const run = async (audioPath) => {
       // Если в названии есть совпадения
       const newSongTitleArr = title?.split(' ');
       const latestSongArr = latestSong.title?.split(' ');
-      if (newSongTitleArr?.length && latestSongArr?.length) {
-        for (const newSongTitleItem of newSongTitleArr) {
-          if (newSongTitleItem.length < 3) continue;
-          if (latestSongArr.includes(newSongTitleItem)) {
-            const message = await bot.sendMessage(
-              ADM_CHAT_ID,
-              `ТЕСТ ПОВТОР\nНовая песня:${newSong}\nСтарая песня:${latestSong.title}`,
-              {
-                parse_mode: 'HTML',
-              },
-            );
-            setTimeout(() => {
-              try {
-                bot.deleteMessage(ADM_CHAT_ID, message.message_id);
-              } catch {}
-            }, 1800000);
-            return;
-          }
-        }
-      }
-
       const currentHour = new Date().getHours();
 
       const timeNow = new Date().toLocaleTimeString('ru-RU', {
         timeZone: 'Europe/Moscow',
       });
+      if (newSongTitleArr?.length && latestSongArr?.length) {
+        for (const newSongTitleItem of newSongTitleArr) {
+          if (newSongTitleItem.length < 3) continue;
+          if (latestSongArr.includes(newSongTitleItem)) {
+            if (currentHour >= 4 && currentHour <= 18) {
+              const message = await bot.sendMessage(
+                ADM_CHAT_ID,
+                `ТЕСТ ПОВТОР\nНовая песня:${newSong}\nСтарая песня:${latestSong.title}`,
+                {
+                  parse_mode: 'HTML',
+                },
+              );
+              setTimeout(() => {
+                try {
+                  bot.deleteMessage(ADM_CHAT_ID, message.message_id);
+                } catch {}
+              }, 1800000);
+            }
+            return;
+          }
+        }
+      }
 
       // Если время по Москве с 7 до 22
       if (currentHour >= 4 && currentHour <= 18) {
