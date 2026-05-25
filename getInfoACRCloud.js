@@ -105,14 +105,15 @@ export const run = async (audioPath) => {
       meta.artists.forEach((artist) => {
         artistsStr += `${artist.name}, `;
       });
+      const title = meta.title.trim()
 
-      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
+      const newSong = `Артист: ${artistsStr}\nНазвание песни: ${title}`;
       const latestSongString = `Артист: ${latestSong.artist}\nНазвание песни: ${latestSong.title}`;
       // Если та же песня
       if (newSong.toLowerCase() === latestSongString.toLowerCase()) return;
 
       // Если в названии есть совпадения
-      const newSongTitleArr = meta.title?.split(' ');
+      const newSongTitleArr = title?.split(' ');
       const latestSongArr = latestSong.title?.split(' ');
       if (newSongTitleArr?.length && latestSongArr?.length) {
         for (const newSongTitleItem of newSongTitleArr) {
@@ -155,7 +156,7 @@ export const run = async (audioPath) => {
         });
       }
 
-      const songNew = { artist: artistsStr, title: meta.title, time: timeNow };
+      const songNew = { artist: artistsStr, title, time: timeNow };
 
       writeBase(songNew);
 
