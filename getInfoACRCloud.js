@@ -121,7 +121,21 @@ export const run = async (audioPath) => {
       if (newSongTitleArr?.length && latestSongArr?.length) {
         for (const newSongTitleItem of newSongTitleArr) {
           if (newSongTitleItem.length < 3) continue;
-          if (latestSongArr.includes(newSongTitleItem)) return;
+          if (latestSongArr.includes(newSongTitleItem)) {
+            const message = await bot.sendMessage(
+              ADM_CHAT_ID,
+              `ТЕСТ ПОВТОР\nНовая песня:${newSong}\nСтарая песня:${latestSong.title}`,
+              {
+                parse_mode: 'HTML',
+              },
+            );
+            setTimeout(() => {
+              try {
+                bot.deleteMessage(ADM_CHAT_ID, message.message_id);
+              } catch {}
+            }, 1200000);
+            return;
+          }
         }
       }
 
