@@ -63,14 +63,10 @@ export async function identify(data, options) {
   form.append('signature_version', options.signature_version);
   form.append('signature', signature);
   form.append('timestamp', timestamp);
-  try {
     return await axios.post(`https://${options.host}${options.endpoint}`, form, {
       headers: form.getHeaders(),
       proxy: false,
     });
-  } catch (error) {
-    throw error;
-  }
 }
 
 export const run = async (audioPath) => {
@@ -107,7 +103,7 @@ export const run = async (audioPath) => {
       const meta = response.data.metadata.music[0];
       let artistsStr = '';
       meta.artists.forEach((artist) => {
-        artistsStr += artist.name + ', ';
+        artistsStr += `${artist.name}, `;
       });
 
       const newSong = `Артист: ${artistsStr}\nНазвание песни: ${meta.title}`;
