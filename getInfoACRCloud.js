@@ -129,7 +129,7 @@ export const run = async (audioPath) => {
               try {
                 bot.deleteMessage(ADM_CHAT_ID, message.message_id);
               } catch {}
-            }, 1200000);
+            }, 1800000);
             return;
           }
         }
