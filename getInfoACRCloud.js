@@ -130,7 +130,7 @@ export const run = async (audioPath) => {
       const timeNow = new Date().toLocaleTimeString('ru-RU', {
         timeZone: 'Europe/Moscow',
       });
-      
+
       // Если время по Москве с 7 до 22
       if (currentHour >= 4 && currentHour <= 18) {
         chatIds.forEach(async (chatId) => {
@@ -151,7 +151,5 @@ export const run = async (audioPath) => {
 
       latestSong = songNew;
     }
-  } catch (error) {
-    console.log(error);
-  }
+  } catch {}
 };
